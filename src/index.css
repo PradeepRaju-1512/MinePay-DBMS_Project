@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    background-color: #191A1C;
+    color: #E2E8F0;
+    font-family: 'VT323', monospace;
+    font-size: 19px;
+    letter-spacing: 0.5px;
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: none;
+    image-rendering: pixelated;
+  }
+
+  h1, h2, h3, h4, h5, h6, button, .font-pixel {
+    font-family: 'Press Start 2P', monospace;
+  }
+}
+
+/* 3D Minecraft Block Button Depression */
+.mc-block-btn {
+  border: 2px solid #000;
+  box-shadow: inset 2px 2px 0 rgba(255, 255, 255, 0.25), 0 4px 0 #000;
+  transition: transform 0.05s, box-shadow 0.05s;
+}
+
+.mc-block-btn:active {
+  transform: translateY(3px);
+  box-shadow: inset 2px 2px 0 rgba(255, 255, 255, 0.15), 0 1px 0 #000;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #111;
+  border-left: 1px solid #333;
+}
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border: 1px solid #000;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #444;
+}

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MinePay - Multidevice Online Banking Simulator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- top bar -->
+  <header class="top-nav">
+    <div class="brand">
+      <span class="brand-emerald">✦</span>
+      <span class="brand-title">MinePay</span>
+      <span class="brand-subtitle">DBMS ACID Simulator</span>
+    </div>
+    <div class="nav-actions">
+      <button id="resetDemoBtn" class="mc-btn mc-btn-secondary" title="Reset all balances to default seed data">
+        ↻ Reset Demo
+      </button>
+      <button id="toggleSqlPanelBtn" class="mc-btn mc-btn-dark">
+        [⚙] SQL Console
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Responsive Grid Layout -->
+  <main class="app-layout">
+    
+    <!-- LEFT / CENTER: Smartphone Simulator Container -->
+    <section class="phone-column">
+      
+      <!-- Device Switcher Tabs (Simulates multiple active devices accessing the bank) -->
+      <div class="device-switcher-bar">
+        <span class="device-label">ACTIVE DEVICE:</span>
+        <div class="device-tabs" id="deviceTabs">
+          <!-- Populated dynamically via JS: Steve, Alex, Villager -->
+          <button class="device-tab active" data-account="b0000000-0000-0000-0000-000000000001">
+            <span class="skin-icon">⛏</span> Steve's Phone
+          </button>
+          <button class="device-tab" data-account="b0000000-0000-0000-0000-000000000002">
+            <span class="skin-icon">🏹</span> Alex's Phone
+          </button>
+          <button class="device-tab" data-account="b0000000-0000-0000-0000-000000000003">
+            <span class="skin-icon">📜</span> Villager's Phone
+          </button>
+        </div>
+      </div>
+
+      <!-- Smartphone Hardware Frame -->
+      <div class="phone-frame">
+        <div class="phone-speaker"></div>
+        <div class="phone-camera"></div>
+
+        <!-- Phone Screen Content -->
+        <div class="phone-screen">
+          
+          <!-- Phone Status Bar -->
+          <div class="phone-status-bar">
+            <span class="time" id="liveTime">09:30 AM</span>
+            <span class="carrier">MineNet 5G</span>
+            <div class="status-icons">
+              <span title="Redstone Signal">📶</span>
+              <span title="Full Battery">⚡ 100%</span>
+            </div>
+          </div>
+
+          <!-- App Header inside Phone -->
+          <div class="phone-app-header">
+            <div class="user-profile-badge">
+              <div class="pixel-avatar" id="currentAvatar">⛏</div>
+              <div class="user-meta">
+                <h2 id="currentUsername">Steve Miner</h2>
+                <span class="upi-id" id="currentUpi">steve@minepay</span>
+              </div>
+            </div>
+            <div class="lock-indicator" id="concurrencyLockStatus" title="Row Lock State">
+              <span class="lock-dot"></span>
+              <span class="lock-text">UNLOCKED</span>
+            </div>
+          </div>
+
+          <!-- Balance / Chest Vault Card -->
+          <div class="chest-card">
+            <div class="chest-card-header">
+              <span class="chest-icon">⚰</span>
+              <span class="vault-type" id="currentVaultType">OAK CHEST VAULT</span>
+              <span class="acc-num" id="currentAccNum">MINE-1001-STEVE</span>
+            </div>
+            
+            <div class="balance-display">
+              <span class="currency-symbol">✦</span>
+              <span class="balance-number" id="currentBalance">1,000.00</span>
+              <span class="currency-name">Emeralds</span>
+            </div>
+
+            <div class="chest-card-footer">
+              <span class="acid-badge">ACID PROTECTED</span>
+              <span class="pin-hint">Default PIN: 1234</span>
+            </div>
+          </div>
+
+          <!-- Quick Navigation Actions -->
+          <div class="quick-actions">
+            <button class="action-btn active" id="tabTransfer">
+              <span class="action-icon">💸</span>
+              <span>Send Money</span>
+            </button>
+            <button class="action-btn" id="tabHistory">
+              <span class="action-icon">📜</span>
+              <span>History</span>
+            </button>
+            <button class="action-btn" id="tabInfo">
+              <span class="action-icon">ℹ️</span>
+              <span>Account Info</span>
+            </button>
+          </div>
+
+          <!-- Dynamic Panel: Send Money Form -->
+          <div class="panel-section" id="panelTransfer">
+            <h3 class="section-title">Transfer Emeralds</h3>
+            
+            <!-- Quick Beneficiary Selection -->
+            <div class="quick-contacts">
+              <span class="contacts-label">Fast Send:</span>
+              <div class="contacts-list" id="quickContactsList">
+                <!-- Injected via app.js -->
+              </div>
+            </div>
+
+            <form id="transferForm" class="mc-form">
+              <div class="form-group">
+                <label for="receiverSelect">Pay To (Beneficiary Account):</label>
+                <select id="receiverSelect" class="mc-select" required>
+                  <option value="" disabled selected>-- Select Recipient --</option>
+                  <!-- Populated dynamically via JS -->
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="amountInput">Amount (✦ Emeralds):</label>
+                <div class="input-with-icon">
+                  <span class="input-prefix">✦</span>
+                  <input type="number" id="amountInput" class="mc-input" placeholder="0.00" min="1" step="0.5" required>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="noteInput">Payment Note (Optional):</label>
+                <input type="text" id="noteInput" class="mc-input" placeholder="e.g. Iron tools repair" maxlength="100">
+              </div>
+
+              <button type="button" id="openPinModalBtn" class="mc-btn mc-btn-primary mc-btn-block">
+                <span>AUTHORIZE TRANSFER ✦</span>
+              </button>
+            </form>
+          </div>
+
+          <!-- Dynamic Panel: Transaction History -->
+          <div class="panel-section hidden" id="panelHistory">
+            <div class="history-header">
+              <h3 class="section-title">Passbook Ledger</h3>
+              <button id="refreshHistoryBtn" class="mc-btn mc-btn-small">↻ Refresh</button>
+            </div>
+            
+            <div class="history-list" id="historyList">
+              <!-- Populated dynamically via JS -->
+              <div class="empty-state">Loading transaction history...</div>
+            </div>
+          </div>
+
+          <!-- Dynamic Panel: Account Info -->
+          <div class="panel-section hidden" id="panelInfo">
+            <h3 class="section-title">DBMS Account Metadata</h3>
+            <div class="info-card">
+              <div class="info-row">
+                <span class="info-label">Account UUID:</span>
+                <span class="info-val font-mono" id="metaAccountId">-</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">User UUID:</span>
+                <span class="info-val font-mono" id="metaUserId">-</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">UPI Handle:</span>
+                <span class="info-val" id="metaUpiHandle">-</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Registered Phone:</span>
+                <span class="info-val" id="metaPhone">-</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Constraint Integrity:</span>
+                <span class="info-val status-ok">CHECK (balance &gt;= 0)</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Referential Action:</span>
+                <span class="info-val status-ok">ON DELETE RESTRICT</span>
+              </div>
+            </div>
+          </div>
+
+        </div> <!-- /phone-screen -->
+
+        <div class="phone-home-bar"></div>
+      </div> <!-- /phone-frame -->
+    </section>
+
+    <!-- RIGHT: DBMS Transaction Inspector & Live SQL Console -->
+    <section class="inspector-column" id="sqlInspectorPanel">
+      <div class="inspector-box">
+        
+        <div class="inspector-header">
+          <div class="inspector-title">
+            <span class="console-icon">⛏</span>
+            <h3>DBMS ACID &amp; Concurrency Monitor</h3>
+          </div>
+          <button id="clearLogsBtn" class="mc-btn mc-btn-small mc-btn-dark">Clear Logs</button>
+        </div>
+
+        <div class="inspector-tabs">
+          <button class="insp-tab active" data-tab="liveSql">Live SQL Log</button>
+          <button class="insp-tab" data-tab="acidExplainer">ACID Checklist</button>
+          <button class="insp-tab" data-tab="schemaView">schema.sql</button>
+        </div>
+
+        <!-- Tab 1: Live SQL Query Stream -->
+        <div class="insp-content active" id="tabContentLiveSql">
+          <div class="terminal-view" id="sqlTerminal">
+            <div class="log-line log-system">[SYSTEM] PostgreSQL 14+ Connection Pool initialized (Max: 20 clients).</div>
+            <div class="log-line log-system">[SYSTEM] Row-Level Locking (SELECT ... FOR UPDATE) active.</div>
+            <div class="log-line log-info">[READY] Select an account and initiate a transfer to observe SQL transaction.</div>
+          </div>
+        </div>
+
+        <!-- Tab 2: ACID Compliance Breakdown -->
+        <div class="insp-content" id="tabContentAcidExplainer">
+          <div class="acid-breakdown-card">
+            <h4>How MinePay Enforces ACID Properties:</h4>
+            
+            <div class="acid-item">
+              <span class="acid-letter">A</span>
+              <div class="acid-desc">
+                <strong>Atomicity (All-or-Nothing):</strong>
+                <p>Transfer is wrapped in <code>BEGIN</code> and <code>COMMIT</code>. If any debit, credit, or PIN verification fails, <code>ROLLBACK</code> immediately executes.</p>
+              </div>
+            </div>
+
+            <div class="acid-item">
+              <span class="acid-letter">C</span>
+              <div class="acid-desc">
+                <strong>Consistency (Invariants):</strong>
+                <p>Schema enforces <code>CHECK (balance &gt;= 0.00)</code>. Total currency in the system remains conserved before and after every transfer.</p>
+              </div>
+            </div>
+
+            <div class="acid-item">
+              <span class="acid-letter">I</span>
+              <div class="acid-desc">
+                <strong>Isolation (No Race Conditions):</strong>
+                <p>Row-level locks <code>SELECT ... FOR UPDATE</code> lock accounts in sorted order (<code>ORDER BY account_id ASC</code>), completely eliminating double-spending and deadlocks.</p>
+              </div>
+            </div>
+
+            <div class="acid-item">
+              <span class="acid-letter">D</span>
+              <div class="acid-desc">
+                <strong>Durability (Persistent Ledger):</strong>
+                <p>Committed records are permanently written to write-ahead logs (WAL) in PostgreSQL with foreign keys locked by <code>ON DELETE RESTRICT</code>.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 3: Schema DDL View -->
+        <div class="insp-content" id="tabContentSchemaView">
+          <pre class="schema-code-block"><code>-- PostgreSQL 3NF Normalized Schema
+CREATE TABLE users (
+    user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    username VARCHAR(50) UNIQUE NOT NULL,
+    phone_number VARCHAR(15) UNIQUE NOT NULL,
+    upi_handle VARCHAR(50) UNIQUE NOT NULL
+);
+
+CREATE TABLE accounts (
+    account_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(user_id) ON DELETE RESTRICT,
+    account_number VARCHAR(20) UNIQUE NOT NULL,
+    balance NUMERIC(12, 2) NOT NULL CHECK (balance >= 0.00),
+    security_pin_hash VARCHAR(64) NOT NULL
+);
+
+CREATE TABLE transactions (
+    transaction_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    sender_account_id UUID REFERENCES accounts(account_id) ON DELETE RESTRICT,
+    receiver_account_id UUID REFERENCES accounts(account_id) ON DELETE RESTRICT,
+    amount NUMERIC(12, 2) NOT NULL CHECK (amount > 0.00),
+    status VARCHAR(20) CHECK (status IN ('PENDING', 'SUCCESS', 'FAILED'))
+);</code></pre>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 4-Digit Security PIN Modal (Pixelated Keypad) -->
+  <div class="modal-overlay hidden" id="pinModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <span class="modal-icon">🔒</span>
+        <h3>ENTER 4-DIGIT UPI PIN</h3>
+      </div>
+      
+      <p class="modal-subtitle">Authorizing transfer of <span id="pinModalAmount" class="highlight-emerald">0.00 ✦</span> to <span id="pinModalRecipient" class="highlight-name">Recipient</span></p>
+
+      <!-- PIN dots -->
+      <div class="pin-display">
+        <div class="pin-dot" id="dot1"></div>
+        <div class="pin-dot" id="dot2"></div>
+        <div class="pin-dot" id="dot3"></div>
+        <div class="pin-dot" id="dot4"></div>
+      </div>
+
+      <!-- Minecraft 3D Block Numeric Keypad -->
+      <div class="keypad-grid">
+        <button class="keypad-btn" data-key="1">1</button>
+        <button class="keypad-btn" data-key="2">2</button>
+        <button class="keypad-btn" data-key="3">3</button>
+        <button class="keypad-btn" data-key="4">4</button>
+        <button class="keypad-btn" data-key="5">5</button>
+        <button class="keypad-btn" data-key="6">6</button>
+        <button class="keypad-btn" data-key="7">7</button>
+        <button class="keypad-btn" data-key="8">8</button>
+        <button class="keypad-btn" data-key="9">9</button>
+        <button class="keypad-btn keypad-cancel" id="btnPinCancel">✖</button>
+        <button class="keypad-btn" data-key="0">0</button>
+        <button class="keypad-btn keypad-backspace" id="btnPinBackspace">⌫</button>
+      </div>
+
+      <div class="modal-actions">
+        <button id="btnPinSubmit" class="mc-btn mc-btn-primary mc-btn-block">
+          AUTHORIZE WITH PIN
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Toast (Success / Error / Rollback) -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Scripts -->
+  <script src="app.js"></script>
+</body>
+</html>
