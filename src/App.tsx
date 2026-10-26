@@ -224,6 +224,16 @@ const INITIAL_TRANSACTIONS: Transaction[] = [
   },
 ];
 
+// pins of the seeded demo players (see schema.sql / README)
+function demoPinLabel(username: string): string {
+  const n = (username || '').toLowerCase();
+  if (n.includes('alex')) return 'PIN 4321';
+  if (n.includes('piglin')) return 'PIN 9999';
+  if (n.includes('steve')) return 'PIN 1234';
+  if (n.includes('villager')) return 'PIN 0000';
+  return 'USE LOGIN TAB';
+}
+
 export default function App() {
   // navigation & screen state
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -1062,7 +1072,7 @@ export default function App() {
                           <span className="font-['Press_Start_2P',monospace] text-[10px] text-white truncate max-w-[120px] text-center">
                             {u.username}
                           </span>
-                          <span className="text-[9px] text-[#FFE6A3] mt-0.5 font-mono">PIN {u.pin || '1234'}</span>
+                          <span className="text-[9px] text-[#FFE6A3] mt-0.5 font-mono">{demoPinLabel(u.username)}</span>
                         </div>
                       );
                     })}
